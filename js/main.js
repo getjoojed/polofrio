@@ -13,18 +13,12 @@ const CONFIG = {
   whatsapp: '',                 // somente dígitos com DDI, ex: '5547999999999'
   email: '',                    // ex: 'contato@anaschmidtvideomaker.com'
   media: {
-    heroVideo: 'assets/hero.mp4',        // vídeo de fundo do hero (mudo, em loop)
+    heroVideo: '',                       // opcional: vídeo vertical (9:16) de fundo do hero, ex: 'assets/hero.mp4'. Só toca em telas verticais.
     heroPoster: 'assets/hero.jpg',       // imagem exibida antes/no lugar do vídeo
     retrato: 'assets/retrato.jpg',       // foto 4:5 da seção Perfil
     retratoCredito: ''                    // ex: 'Foto: @fotografa'
   },
-  numeros: [
-    { valor: 394, sufixo: ' mil', label: 'plays nos reels' },
-    { valor: 321, sufixo: ' mil', label: 'plays no reel mais visto' },
-    { valor: 1.3, sufixo: ' mil', label: 'comentários no perfil' },
-    { valor: 29, sufixo: '', label: 'cidades e lugares' }
-    // { valor: 0, sufixo: ' mil', label: 'seguidores' }  <- preencha quando tiver o número
-  ],
+  numeros: [],   // vazio = seção "Em números" oculta. Ex.: [{ valor: 29, sufixo: '', label: 'cidades e lugares' }, { valor: 1.3, sufixo: ' mil', label: 'comentários' }]
   numerosNota: 'Dados públicos do perfil · 100 publicações · mai 2024 – ago 2026',
   marcas: [
     ['Intermezzo Assessoria Musical', 'Casamentos · cobertura em tempo real'],
@@ -38,16 +32,16 @@ const CONFIG = {
   ]
 };
 
-/* Reels exibidos em "Em cena" (shortcode do Instagram, capa em assets/reels/<code>.jpg) */
+/* Portfólio: reels de trabalhos para clientes (capa em assets/reels/<code>.jpg) */
 const REELS = [
-  { code: 'DPzxdXNjIW3', titulo: 'Casamento em Trancoso', loc: 'Trancoso · BA', plays: '321 mil', dur: 90 },
-  { code: 'DKub-E3uWM1', titulo: 'Dubai Bungalows', loc: 'Bombinhas · SC', plays: '5,8 mil', dur: 43 },
-  { code: 'DcKFLWAh-uO', titulo: 'Mergulhar no universo do cliente', loc: 'Itajaí · SC', plays: '4,9 mil', dur: 42 },
-  { code: 'DZTfqLvhIhG', titulo: 'O olhar vale mais que a câmera', loc: 'Itajaí · SC', plays: '4,6 mil', dur: 68 },
-  { code: 'DLOVCVEuz1O', titulo: 'Fragmentos: Renata & Felipe', loc: 'Bombinhas · SC', plays: '3,8 mil', dur: 23 },
-  { code: 'DAPLIOPyJYv', titulo: 'Take cinematográfico no celular', loc: 'Itajaí · SC', plays: '2,3 mil', dur: 16 },
-  { code: 'DR-MupKjv91', titulo: 'Da câmera para o palco', loc: 'Balneário Camboriú · SC', plays: '1,9 mil', dur: 38 },
-  { code: 'DcuD3RbxF6P', titulo: 'LG Moto: antes e depois', loc: 'Luiz Alves · SC', plays: '1,8 mil', dur: 41 }
+  { code: 'DPzxdXNjIW3', cat: 'Casamento', titulo: 'Casamento em Trancoso', meta: 'Intermezzo · Trancoso, BA' },
+  { code: 'DLBZUx5OuWw', cat: 'Imobiliário', titulo: 'Real time em casa de alto padrão', meta: 'Cobertura em tempo real' },
+  { code: 'DcKFLWAh-uO', cat: 'Marca', titulo: 'Imersão no negócio do cliente', meta: 'Produção para empresa' },
+  { code: 'DcuD3RbxF6P', cat: 'Produto', titulo: 'LG Moto: antes e depois', meta: 'Vídeo de produto · Luiz Alves, SC' },
+  { code: 'C82subNyZOE', cat: 'Arquitetura', titulo: 'Conteúdo em uma casa de revista', meta: 'Balneário Camboriú, SC' },
+  { code: 'DKLZdyCO6q0', cat: 'Interiores', titulo: 'Fragmentos de um lar de alto padrão', meta: 'Itajaí, SC' },
+  { code: 'DbEZmPLBFo8', cat: 'Tempo real', titulo: 'Visita técnica em uma pedreira', meta: 'Marmoraria · dia inteiro de produção' },
+  { code: 'DDnxy2HOwM2', cat: 'Casamento', titulo: 'Casamento na Estaleiro Guest House', meta: 'Intermezzo · Balneário Camboriú' }
 ];
 
 /* Galeria "Fragmentos" (arquivo em assets/, legenda, largura, altura) */
@@ -77,7 +71,6 @@ const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const fine = matchMedia('(hover: hover) and (pointer: fine)').matches;
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const pad = n => String(n).padStart(2, '0');
-const mmss = s => `${Math.floor(s / 60)}:${pad(s % 60)}`;
 const igUrl = code => `https://www.instagram.com/p/${code}/`;
 
 /* ---------- aplica CONFIG ---------- */
@@ -92,7 +85,9 @@ function applyConfig() {
 
   // hero: vídeo > poster > fallback
   const media = $('#heroMedia');
-  if (CONFIG.media.heroVideo && !reduced) {
+  const portrait = matchMedia('(orientation: portrait)').matches;
+  const saveData = navigator.connection && navigator.connection.saveData;
+  if (CONFIG.media.heroVideo && !reduced && portrait && !saveData) {
     const v = document.createElement('video');
     Object.assign(v, { muted: true, loop: true, playsInline: true, autoplay: true, preload: 'metadata' });
     v.setAttribute('muted', ''); v.setAttribute('playsinline', '');
@@ -100,7 +95,7 @@ function applyConfig() {
     v.src = CONFIG.media.heroVideo;
     v.addEventListener('error', () => { v.remove(); heroPoster(media); });
     v.addEventListener('canplay', () => v.play().catch(() => {}));
-    v.addEventListener('playing', () => v.classList.add('is-playing'), { once: true });
+    v.addEventListener('playing', () => { v.classList.add('is-playing'); media.classList.add('is-video'); }, { once: true });
     if (CONFIG.media.heroPoster) heroPoster(media);
     media.appendChild(v);
   } else heroPoster(media);
@@ -138,14 +133,13 @@ function renderReels() {
   track.innerHTML = REELS.map((r, i) => `
     <article class="reel" data-reveal style="--d:${(i % 4) * 70}ms">
       <div class="reel__screen" data-cursor="play" data-code="${r.code}" role="button" tabindex="0" aria-label="Assistir: ${r.titulo}">
-        <img src="assets/reels/${r.code}.jpg" alt="${r.titulo}" loading="lazy" decoding="async" width="640" height="1136">
+        <img src="assets/reels/${r.code}.jpg" alt="${r.titulo}" loading="lazy" decoding="async" width="720" height="1280">
         <div class="reel__shade"></div>
-        <span class="reel__badge">${r.plays} plays</span>
-        <span class="reel__badge reel__badge--r">${mmss(r.dur)}</span>
+        <span class="reel__badge">${r.cat}</span>
         <span class="reel__play" aria-hidden="true"></span>
         <p class="reel__cap">${r.titulo}</p>
       </div>
-      <div class="reel__meta"><span>${r.loc || 'Reel'}</span><a href="${igUrl(r.code)}" target="_blank" rel="noopener">Instagram</a></div>
+      <div class="reel__meta"><span>${r.meta}</span><a href="${igUrl(r.code)}" target="_blank" rel="noopener">Instagram</a></div>
     </article>`).join('');
   const open = screen => {
     if (screen.dataset.open) return;

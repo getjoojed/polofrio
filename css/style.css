@@ -109,6 +109,7 @@ ul,ol{list-style:none}
 .hero__media > img,.hero__media > video{position:absolute;inset:0;width:100%;height:112%;object-fit:cover;object-position:60% 50%;opacity:.74;will-change:transform}
 .hero__media > video{opacity:0;transition:opacity 1.6s ease}
 .hero__media > video.is-playing{opacity:.74}
+.hero__media.is-video > img{opacity:0;transition:opacity 1.6s ease}
 .hero__fallback{position:absolute;inset:0;background:
   radial-gradient(60% 50% at 78% 18%,rgba(201,169,120,.34),transparent 62%),
   radial-gradient(50% 60% at 18% 82%,rgba(201,169,120,.16),transparent 60%),
@@ -139,7 +140,7 @@ ul,ol{list-style:none}
 .hero__body{position:relative;z-index:3}
 .hero__eyebrow{display:flex;flex-wrap:wrap;gap:8px 20px;margin-bottom:clamp(20px,4vh,40px);opacity:0;transform:translateY(12px);transition:opacity 1s var(--ease) .9s,transform 1s var(--ease) .9s}
 .is-ready .hero__eyebrow{opacity:1;transform:none}
-.hero__title{font-family:var(--serif);font-weight:400;font-size:clamp(78px,29vw,300px);line-height:.84;letter-spacing:-.035em;margin-left:-.03em}
+.hero__title{font-family:var(--serif);font-weight:400;font-size:max(78px,min(29vw,300px,24vh));line-height:.84;letter-spacing:-.035em;margin-left:-.03em}
 .hero__line{display:block;overflow:hidden;padding:.08em 0 .06em;margin:-.08em 0 -.06em}
 .hero__line i{font-style:italic}
 .hero__title .c{display:inline-block;transform:translateY(112%) rotate(2deg);transform-origin:0 100%;transition:transform 1.25s var(--ease);transition-delay:calc(var(--i) * 34ms + .15s);will-change:transform}
@@ -334,10 +335,10 @@ ul,ol{list-style:none}
   .fmt{flex-basis:360px}
 }
 @media (min-width:1280px){
-  .hero__body{display:grid;grid-template-columns:1fr 1fr;align-items:end}
+  .hero__body{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);column-gap:40px;align-items:end}
   .hero__eyebrow{grid-column:1/-1}
-  .hero__title{grid-column:1/-1;font-size:clamp(78px,17.5vw,300px)}
-  .hero__sub{grid-column:2;margin-top:40px;padding-right:80px}
+  .hero__title{grid-column:1;grid-row:2;font-size:max(78px,min(17.5vw,300px,30vh))}
+  .hero__sub{grid-column:2;grid-row:2;margin:0 0 .4em;max-width:560px;justify-self:end;width:100%}
 }
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
