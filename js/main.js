@@ -16,7 +16,7 @@ const CONFIG = {
     heroVideo: 'assets/hero.mp4',        // vídeo de fundo do hero (mudo, em loop)
     heroPoster: 'assets/hero.jpg',       // imagem exibida antes/no lugar do vídeo
     retrato: 'assets/retrato.jpg',       // foto 4:5 da seção Perfil
-    retratoCredito: 'Foto: @leticiacardoso.ph'
+    retratoCredito: ''                    // ex: 'Foto: @fotografa'
   },
   numeros: [
     { valor: 394, sufixo: ' mil', label: 'plays nos reels' },
@@ -50,24 +50,24 @@ const REELS = [
   { code: 'DcuD3RbxF6P', titulo: 'LG Moto: antes e depois', loc: 'Luiz Alves · SC', plays: '1,8 mil', dur: 41 }
 ];
 
-/* Galeria "Fragmentos" (arquivos em assets/fotos/) */
+/* Galeria "Fragmentos" (arquivo em assets/, legenda, largura, altura) */
 const GALERIA = [
-  ['DbW3DaInIpm-00', 'Em ação · Itajaí', 3072, 4096],
-  ['DAQuLc8u7K2-00', 'Interiores · Marcia Lima', 1440, 1800],
-  ['DaL6W4gnBWg-00', 'Cobertura em tempo real', 3024, 4032],
-  ['DP2YGJ2DrYW-00', 'Trancoso · Bahia', 1440, 1800],
-  ['DBXZsLsNV0K-00', 'CASACOR Floripa', 1440, 1800],
-  ['DHHfbtRuO6f-00', 'Estúdio Black 108', 1440, 1800],
-  ['DY8f2J-HE-n-00', 'Conexão Social Media · SP', 3072, 4096],
-  ['DJnJuh4u49f-00', 'Fragmentos', 1080, 1350],
-  ['DanjoLtB2h4', 'Viva Park · Porto Belo', 2971, 3961],
-  ['C_RjRQzNRwG-00', 'Fotos de produto', 1440, 1440],
-  ['DXZP1WdnJJN-00', 'Setup mobile', 1206, 1608],
-  ['DbEfj39HPop-01', 'Um dia inteiro de experiências', 3072, 4096],
-  ['DAQwqMzuUz8-02', 'Detalhes do projeto', 1440, 1800],
-  ['DZ3T-LmnIGf-03', 'Bastidores', 3072, 4096],
-  ['DJPZiYNO5MM-00', 'Storymaker', 1440, 1800],
-  ['DUMXFv1DkAC-00', 'Janeiro · consistência', 1440, 1920]
+  ['fotos/DbW3DaInIpm-00.jpg', 'Em ação · Itajaí', 1050, 1400],
+  ['fotos/DAQuLc8u7K2-00.jpg', 'Interiores · Marcia Lima', 1120, 1400],
+  ['fotos/DaL6W4gnBWg-01.jpg', 'Cobertura em tempo real', 1050, 1400],
+  ['fotos/DPzxdXNjIW3-capa.jpg', 'Casamento em Trancoso', 788, 1400],
+  ['fotos/DBXZsLsNV0K-03.jpg', 'CASACOR Floripa', 1120, 1400],
+  ['fotos/DHHfbtRuO6f-02.jpg', 'Estúdio Black 108', 1120, 1400],
+  ['fotos/DY8f2J-HE-n-00.jpg', 'Conexão Social Media · SP', 1050, 1400],
+  ['fotos/DJnJuh4u49f-00.jpg', 'Série Fragmentos', 1080, 1350],
+  ['fotos/DanjoLtB2h4.jpg', 'Viva Park · Porto Belo', 1050, 1400],
+  ['fotos/DBWMzpIuElf-01.jpg', 'CASACOR · ambientes', 1120, 1400],
+  ['fotos/DUMXFv1DkAC-05.jpg', 'Bastidores · setup', 1050, 1400],
+  ['fotos/DbEfj39HPop-02.jpg', 'Visita técnica · pedreira', 1050, 1400],
+  ['fotos/DAQwqMzuUz8-08.jpg', 'Detalhes do projeto', 1120, 1400],
+  ['fotos/DZ3T-LmnIGf-03.jpg', 'Bastidores · gravação', 1050, 1400],
+  ['fotos/DJPZiYNO5MM-07.jpg', 'Storymaker · evento', 1120, 1400],
+  ['fotos/DbYj5qhBEqy.jpg', 'Cenário · Haras Rio do Ouro', 1050, 1400]
 ];
 
 /* ===================================================================== */
@@ -100,6 +100,8 @@ function applyConfig() {
     v.src = CONFIG.media.heroVideo;
     v.addEventListener('error', () => { v.remove(); heroPoster(media); });
     v.addEventListener('canplay', () => v.play().catch(() => {}));
+    v.addEventListener('playing', () => v.classList.add('is-playing'), { once: true });
+    if (CONFIG.media.heroPoster) heroPoster(media);
     media.appendChild(v);
   } else heroPoster(media);
 
@@ -171,7 +173,7 @@ function renderGallery() {
   GALERIA.forEach(([file, cap, w, h], i) => {
     const fig = document.createElement('figure');
     fig.className = 'gal__item'; fig.dataset.reveal = ''; fig.style.setProperty('--d', `${(i % cols) * 80}ms`);
-    fig.innerHTML = `<img src="assets/fotos/${file}.jpg" alt="${cap}" loading="lazy" decoding="async" width="${w}" height="${h}"><figcaption>${cap}</figcaption>`;
+    fig.innerHTML = `<img src="assets/${file}" alt="${cap}" loading="lazy" decoding="async" width="${w}" height="${h}"><figcaption>${cap}</figcaption>`;
     const img = $('img', fig);
     img.onload = () => img.classList.add('loaded');
     img.onerror = () => fig.remove();
